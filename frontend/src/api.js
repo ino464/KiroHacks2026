@@ -45,6 +45,7 @@ export const uploadPhoto = (landmarkId, file) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+export const deletePhoto = (photoId) => api.delete(`/photos/${photoId}`);
 // --- Hikes & Leaderboard ---
 export const logHike = (landmarkId, hikeCount) =>
   api.post(`/landmarks/${landmarkId}/hikes`, { hike_count: hikeCount });
