@@ -109,7 +109,7 @@ export default function LandmarkPopup({ landmarkId, onDeleted, onMessage }) {
       </div>
 
       {/* Tabs */}
-      {landmark.is_official ? (
+      {landmark.is_official && landmark.category === "hiking_trail" ? (
         <div className="flex border-b mb-2">
           {["info", "leaderboard", "comments"].map((t) => (
             <button
