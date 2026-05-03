@@ -35,10 +35,11 @@ export default function ChatPanel({ onClose }) {
       const history = updated.slice(1);
       const res = await sendChatMessage(history);
       setMessages([...updated, { role: "model", content: res.data.reply }]);
-    } catch {
+    } catch (err) {
+      const detail = err.response?.data?.detail || err.message || "Unknown error";
       setMessages([...updated, {
         role: "model",
-        content: "Sorry, I'm having trouble connecting right now. Try again in a moment.",
+        content: `Error: ${detail}`,
       }]);
     } finally {
       setLoading(false);
