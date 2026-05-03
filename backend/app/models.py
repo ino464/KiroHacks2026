@@ -156,3 +156,17 @@ class Message(Base):
 
     sender = relationship("User", foreign_keys=[sender_id])
     recipient = relationship("User", foreign_keys=[recipient_id])
+
+
+class Trophy(Base):
+    """Awarded when a user completes a weekly objective."""
+    __tablename__ = "trophies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    objective_id = Column(String(50), nullable=False)  # e.g. "post_spot"
+    objective_title = Column(String(200), nullable=False)
+    week_start = Column(DateTime(timezone=True), nullable=False)
+    awarded_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User")

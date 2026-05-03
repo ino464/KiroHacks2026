@@ -68,6 +68,9 @@ def _build_profile(user: models.User, db: Session) -> schemas.PublicProfile:
         post_count=post_count,
         trail_count=trail_count,
         medals=medals,
+        trophies=db.query(func.count(models.Trophy.id)).filter(
+            models.Trophy.user_id == user.id
+        ).scalar() or 0,
     )
 
 

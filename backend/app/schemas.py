@@ -134,6 +134,7 @@ class UserStats(BaseModel):
     trail_count: int
     total_miles: float
     medals: List[MedalEntry]
+    trophies: int = 0
 
 
 # --- Likes ---
@@ -178,6 +179,7 @@ class PublicProfile(BaseModel):
     post_count: int
     trail_count: int
     medals: List[MedalEntry]
+    trophies: int = 0
 
     class Config:
         from_attributes = True

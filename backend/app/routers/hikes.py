@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.database import get_db
 from app import models, schemas, auth
-
 router = APIRouter(prefix="/api", tags=["hikes"])
 
 
@@ -156,4 +155,7 @@ def get_my_stats(
         trail_count=trail_count,
         total_miles=round(total_miles, 1),
         medals=medals,
+        trophies=db.query(func.count(models.Trophy.id)).filter(
+            models.Trophy.user_id == current_user.id
+        ).scalar() or 0,
     )

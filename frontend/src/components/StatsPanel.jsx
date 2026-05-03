@@ -45,6 +45,12 @@ export default function StatsPanel({ onClose }) {
                 </div>
               </div>
 
+              {/* Trophies */}
+              <div className="bg-yellow-50 rounded-xl p-3 text-center border border-yellow-100">
+                <div className="text-3xl font-bold text-yellow-600">🏆 {stats.trophies ?? 0}</div>
+                <div className="text-xs text-gray-500 mt-0.5">Trophies (Objectives Completed)</div>
+              </div>
+
               {/* Medals */}
               <div>
                 <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">

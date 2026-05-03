@@ -87,7 +87,11 @@ export default function ObjectivesPanel({ onClose }) {
                       <span className={`text-sm font-semibold ${obj.completed ? "text-green-700" : "text-gray-800"}`}>
                         {obj.title}
                       </span>
-                      {obj.completed && <span className="text-green-500 text-lg shrink-0">✓</span>}
+                      {obj.completed && (
+                        <span className="text-lg shrink-0" title={obj.newly_awarded ? "Trophy awarded!" : "Completed"}>
+                          {obj.newly_awarded ? "🏆" : "✓"}
+                        </span>
+                      )}
                     </div>
                     <p className="text-xs text-gray-500 mt-0.5">{obj.description}</p>
 

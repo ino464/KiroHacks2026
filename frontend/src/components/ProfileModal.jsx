@@ -58,6 +58,12 @@ export default function ProfileModal({ username, onClose, onMessage }) {
               </div>
             </div>
 
+            {/* Trophies */}
+            <div className="bg-yellow-50 rounded-xl p-3 text-center border border-yellow-100">
+              <div className="text-2xl font-bold text-yellow-600">🏆 {profile.trophies ?? 0}</div>
+              <div className="text-xs text-gray-500">Trophies (Objectives Completed)</div>
+            </div>
+
             {/* Medals */}
             {profile.medals.length > 0 && (
               <div>
