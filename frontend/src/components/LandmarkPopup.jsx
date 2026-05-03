@@ -235,6 +235,15 @@ export default function LandmarkPopup({ landmarkId, onDeleted, onMessage }) {
                 : "Official"}
             </span>
             <div className="flex items-center gap-2">
+              <a
+                href={`https://www.google.com/maps?q=${landmark.latitude},${landmark.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:text-blue-700 transition"
+                title="Open in Google Maps"
+              >
+                🗺️ Maps
+              </a>
               <button
                 onClick={() => handleLike(true)}
                 disabled={!user}
