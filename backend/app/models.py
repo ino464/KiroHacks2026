@@ -1,6 +1,6 @@
 from sqlalchemy import (
     Column, Integer, String, Float, Text, DateTime, ForeignKey,
-    Boolean, Enum as SAEnum, UniqueConstraint, JSON
+    Boolean, Enum as SAEnum, UniqueConstraint
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -54,7 +54,6 @@ class Landmark(Base):
     trail_length_miles = Column(Float, nullable=True)
     elevation_gain_ft = Column(Integer, nullable=True)
     avg_time_minutes = Column(Integer, nullable=True)
-    route_coords = Column(JSON, nullable=True)  # [[lat, lng], [lat, lng], ...]
     author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
