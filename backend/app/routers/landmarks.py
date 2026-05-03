@@ -42,6 +42,7 @@ def list_landmarks(
                 category=lm.category,
                 is_official=lm.is_official,
                 photo_count=_photo_count(lm),
+                route_coords=lm.route_coords,
             )
         )
     return result

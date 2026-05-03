@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polyline } from "react-leaflet";
 import L from "leaflet";
 import { getLandmarks } from "../api";
 import LandmarkPopup from "./LandmarkPopup";
@@ -85,6 +85,7 @@ export default function MapView() {
   const [placing, setPlacing] = useState(false);
   const [newLatLng, setNewLatLng] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [activeRouteId, setActiveRouteId] = useState(null);
 
   const fetchLandmarks = useCallback(async () => {
     const params = {};
@@ -103,6 +104,12 @@ export default function MapView() {
     setNewLatLng(latlng);
     setPlacing(false);
     setShowCreateModal(true);
+  };
+
+  const handleMarkerClick = (lm) => {
+    if (lm.is_official) {
+      setActiveRouteId(prev => prev === lm.id ? null : lm.id);
+    }
   };
 
   const handleCreated = () => {
@@ -196,11 +203,34 @@ export default function MapView() {
 
           <MapClickHandler onMapClick={handleMapClick} placing={placing} />
 
+          {/* All official trail routes — dim by default, bright when active */}
+          {landmarks
+            .filter(lm => lm.is_official && lm.route_coords && lm.route_coords.length > 0)
+            .map(lm => {
+              const isActive = activeRouteId === lm.id;
+              const color = DIFFICULTY_COLORS[lm.difficulty] || "#2d6a4f";
+              return (
+                <Polyline
+                  key={`route-${lm.id}`}
+                  positions={lm.route_coords}
+                  pathOptions={{
+                    color,
+                    weight: isActive ? 5 : 3,
+                    opacity: isActive ? 0.9 : 0.25,
+                  }}
+                />
+              );
+            })
+          }
+
           {landmarks.map((lm) => (
             <Marker
               key={lm.id}
               position={[lm.latitude, lm.longitude]}
               icon={makeIcon(lm)}
+              eventHandlers={{
+                click: () => handleMarkerClick(lm),
+              }}
             >
               <Popup maxWidth={320} minWidth={280} className="rounded-xl">
                 <LandmarkPopup landmarkId={lm.id} onDeleted={fetchLandmarks} />

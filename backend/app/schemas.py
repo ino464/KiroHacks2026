@@ -74,6 +74,7 @@ class LandmarkOut(BaseModel):
     trail_length_miles: Optional[float] = None
     elevation_gain_ft: Optional[int] = None
     avg_time_minutes: Optional[int] = None
+    route_coords: Optional[list] = None
     author: Optional[UserOut] = None
     photos: List[PhotoOut] = []
     created_at: datetime
@@ -92,6 +93,7 @@ class LandmarkSummary(BaseModel):
     category: LandmarkCategory
     is_official: bool
     photo_count: int = 0
+    route_coords: Optional[list] = None
 
     class Config:
         from_attributes = True
