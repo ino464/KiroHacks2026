@@ -51,7 +51,9 @@ class Landmark(Base):
     difficulty = Column(SAEnum(DifficultyLevel), nullable=False, default=DifficultyLevel.easy)
     category = Column(SAEnum(LandmarkCategory), nullable=False, default=LandmarkCategory.other)
     is_official = Column(Boolean, default=False)
-    trail_length_miles = Column(Float, nullable=True)  # round-trip miles for official trails
+    trail_length_miles = Column(Float, nullable=True)
+    elevation_gain_ft = Column(Integer, nullable=True)
+    avg_time_minutes = Column(Integer, nullable=True)
     author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

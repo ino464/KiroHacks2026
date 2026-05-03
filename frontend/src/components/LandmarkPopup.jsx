@@ -171,6 +171,34 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
             {landmark.description}
           </p>
 
+          {/* Trail stats for official trails */}
+          {landmark.is_official && (landmark.trail_length_miles || landmark.elevation_gain_ft || landmark.avg_time_minutes) && (
+            <div className="grid grid-cols-3 gap-1.5 mb-2">
+              {landmark.trail_length_miles && (
+                <div className="bg-green-50 rounded-lg p-1.5 text-center">
+                  <div className="text-sm font-bold text-slo-green">{landmark.trail_length_miles}</div>
+                  <div className="text-xs text-gray-400">mi</div>
+                </div>
+              )}
+              {landmark.elevation_gain_ft && (
+                <div className="bg-orange-50 rounded-lg p-1.5 text-center">
+                  <div className="text-sm font-bold text-orange-600">{landmark.elevation_gain_ft.toLocaleString()}</div>
+                  <div className="text-xs text-gray-400">ft gain</div>
+                </div>
+              )}
+              {landmark.avg_time_minutes && (
+                <div className="bg-blue-50 rounded-lg p-1.5 text-center">
+                  <div className="text-sm font-bold text-blue-600">
+                    {landmark.avg_time_minutes >= 60
+                      ? `${Math.floor(landmark.avg_time_minutes / 60)}h${landmark.avg_time_minutes % 60 ? ` ${landmark.avg_time_minutes % 60}m` : ""}`
+                      : `${landmark.avg_time_minutes}m`}
+                  </div>
+                  <div className="text-xs text-gray-400">avg time</div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Footer */}
           <div className="flex items-center justify-between text-xs text-gray-400 border-t pt-2">
             <span>{landmark.author ? `by ${landmark.author.username}` : "Official"}</span>

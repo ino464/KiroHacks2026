@@ -19,6 +19,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 3.2,
+        "elevation_gain_ft": 940,
+        "avg_time_minutes": 120,
     },
     {
         "title": "Cerro San Luis (Madonna Mountain)",
@@ -33,6 +35,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 2.8,
+        "elevation_gain_ft": 590,
+        "avg_time_minutes": 90,
     },
     {
         "title": "Islay Hill Open Space",
@@ -47,6 +51,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 1.4,
+        "elevation_gain_ft": 420,
+        "avg_time_minutes": 60,
     },
     {
         "title": "Poly Canyon Design Village Trail",
@@ -61,6 +67,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 3.6,
+        "elevation_gain_ft": 200,
+        "avg_time_minutes": 75,
     },
     {
         "title": "Montana de Oro Bluff Trail",
@@ -75,6 +83,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 4.0,
+        "elevation_gain_ft": 100,
+        "avg_time_minutes": 90,
     },
     {
         "title": "Valencia Peak - Montana de Oro",
@@ -89,6 +99,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 4.6,
+        "elevation_gain_ft": 1100,
+        "avg_time_minutes": 150,
     },
     {
         "title": "Spooner's Cove - Montana de Oro",
@@ -103,6 +115,8 @@ OFFICIAL_LANDMARKS = [
         "category": "swimming_hole",
         "is_official": True,
         "trail_length_miles": 0.5,
+        "elevation_gain_ft": 20,
+        "avg_time_minutes": 15,
     },
     {
         "title": "Morro Rock",
@@ -117,6 +131,8 @@ OFFICIAL_LANDMARKS = [
         "category": "viewpoint",
         "is_official": True,
         "trail_length_miles": 1.0,
+        "elevation_gain_ft": 10,
+        "avg_time_minutes": 30,
     },
     {
         "title": "Morro Bay State Park Heron Rookery",
@@ -131,6 +147,8 @@ OFFICIAL_LANDMARKS = [
         "category": "wildlife",
         "is_official": True,
         "trail_length_miles": 0.8,
+        "elevation_gain_ft": 30,
+        "avg_time_minutes": 20,
     },
     {
         "title": "Cerro Alto Trail",
@@ -145,6 +163,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 5.8,
+        "elevation_gain_ft": 1600,
+        "avg_time_minutes": 210,
     },
     {
         "title": "Pismo Beach Monarch Butterfly Grove",
@@ -159,6 +179,8 @@ OFFICIAL_LANDMARKS = [
         "category": "wildlife",
         "is_official": True,
         "trail_length_miles": 0.4,
+        "elevation_gain_ft": 5,
+        "avg_time_minutes": 20,
     },
     {
         "title": "Avila Beach Harford Pier",
@@ -173,6 +195,8 @@ OFFICIAL_LANDMARKS = [
         "category": "viewpoint",
         "is_official": True,
         "trail_length_miles": 0.6,
+        "elevation_gain_ft": 5,
+        "avg_time_minutes": 20,
     },
     {
         "title": "Prefumo Canyon Road Viewpoint",
@@ -187,6 +211,8 @@ OFFICIAL_LANDMARKS = [
         "category": "viewpoint",
         "is_official": True,
         "trail_length_miles": 1.2,
+        "elevation_gain_ft": 150,
+        "avg_time_minutes": 30,
     },
     {
         "title": "Lopez Lake Recreation Area",
@@ -201,6 +227,8 @@ OFFICIAL_LANDMARKS = [
         "category": "camping",
         "is_official": True,
         "trail_length_miles": 2.2,
+        "elevation_gain_ft": 300,
+        "avg_time_minutes": 60,
     },
     {
         "title": "Chumash Trail - Santa Margarita Lake",
@@ -215,6 +243,8 @@ OFFICIAL_LANDMARKS = [
         "category": "hiking_trail",
         "is_official": True,
         "trail_length_miles": 3.8,
+        "elevation_gain_ft": 500,
+        "avg_time_minutes": 120,
     },
 ]
 
@@ -224,16 +254,21 @@ def seed():
     try:
         existing = db.query(models.Landmark).filter(models.Landmark.is_official == True).count()
         if existing > 0:
-            # Update trail lengths if missing
+            # Update trail stats if missing
             for data in OFFICIAL_LANDMARKS:
                 lm = db.query(models.Landmark).filter(
                     models.Landmark.title == data["title"],
                     models.Landmark.is_official == True,
                 ).first()
-                if lm and lm.trail_length_miles is None:
-                    lm.trail_length_miles = data.get("trail_length_miles")
+                if lm:
+                    if lm.trail_length_miles is None:
+                        lm.trail_length_miles = data.get("trail_length_miles")
+                    if lm.elevation_gain_ft is None:
+                        lm.elevation_gain_ft = data.get("elevation_gain_ft")
+                    if lm.avg_time_minutes is None:
+                        lm.avg_time_minutes = data.get("avg_time_minutes")
             db.commit()
-            print(f"Already have {existing} official landmarks. Updated trail lengths.")
+            print(f"Already have {existing} official landmarks. Updated trail stats.")
             return
 
         for data in OFFICIAL_LANDMARKS:

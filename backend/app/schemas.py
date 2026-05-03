@@ -70,6 +70,9 @@ class LandmarkOut(BaseModel):
     difficulty: DifficultyLevel
     category: LandmarkCategory
     is_official: bool
+    trail_length_miles: Optional[float] = None
+    elevation_gain_ft: Optional[int] = None
+    avg_time_minutes: Optional[int] = None
     author: Optional[UserOut] = None
     photos: List[PhotoOut] = []
     created_at: datetime
