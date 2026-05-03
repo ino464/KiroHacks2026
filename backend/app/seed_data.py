@@ -331,14 +331,14 @@ def seed():
                         lm.elevation_gain_ft = data.get("elevation_gain_ft")
                     if lm.avg_time_minutes is None:
                         lm.avg_time_minutes = data.get("avg_time_minutes")
-                    if lm.route_coords is None:
-                        lm.route_coords = data.get("route_coords")
             db.commit()
             print(f"Already have {existing} official landmarks. Updated trail stats.")
             return
 
+        # Strip route_coords before inserting since column was removed
         for data in OFFICIAL_LANDMARKS:
-            lm = models.Landmark(**data)
+            clean = {k: v for k, v in data.items() if k != "route_coords"}
+            lm = models.Landmark(**clean)
             db.add(lm)
 
         db.commit()
