@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getLandmark, uploadPhoto, deletePhoto, deleteLandmark, photoUrl } from "../api";
+import { getLandmark, uploadPhoto, deletePhoto, deleteLandmark, photoUrl, getLandmarkLikes, likeLandmark } from "../api";
 import { useAuth } from "../context/AuthContext";
 import Leaderboard from "./Leaderboard";
+import CommentsSection from "./CommentsSection";
 
 const DIFFICULTY_BADGE = {
   easy: "bg-green-100 text-green-800",
@@ -26,11 +27,19 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
   const [landmark, setLandmark] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
-  const [tab, setTab] = useState("info"); // "info" | "leaderboard"
+  const [tab, setTab] = useState("info"); // "info" | "leaderboard" | "comments"
+  const [likeSummary, setLikeSummary] = useState({ likes: 0, dislikes: 0, user_vote: null });
 
   useEffect(() => {
     getLandmark(landmarkId).then((res) => setLandmark(res.data));
+    getLandmarkLikes(landmarkId).then((res) => setLikeSummary(res.data)).catch(() => {});
   }, [landmarkId]);
+
+  const handleLike = async (isLike) => {
+    if (!user) return;
+    const res = await likeLandmark(landmarkId, isLike);
+    setLikeSummary(res.data);
+  };
 
   if (!landmark) {
     return <div className="p-2 text-sm text-gray-500">Loading...</div>;
@@ -98,34 +107,45 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
         </div>
       </div>
 
-      {/* Tabs — only show leaderboard tab for official trails */}
-      {landmark.is_official && (
+      {/* Tabs */}
+      {landmark.is_official ? (
         <div className="flex border-b mb-2">
-          <button
-            onClick={() => setTab("info")}
-            className={`flex-1 text-xs py-1.5 font-medium transition ${
-              tab === "info"
-                ? "border-b-2 border-slo-green text-slo-green"
-                : "text-gray-400 hover:text-gray-600"
-            }`}
-          >
-            Info
-          </button>
-          <button
-            onClick={() => setTab("leaderboard")}
-            className={`flex-1 text-xs py-1.5 font-medium transition ${
-              tab === "leaderboard"
-                ? "border-b-2 border-slo-green text-slo-green"
-                : "text-gray-400 hover:text-gray-600"
-            }`}
-          >
-            🏆 Leaderboard
-          </button>
+          {["info", "leaderboard", "comments"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex-1 text-xs py-1.5 font-medium transition capitalize ${
+                tab === t
+                  ? "border-b-2 border-slo-green text-slo-green"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              {t === "leaderboard" ? "🏆 Board" : t === "comments" ? "💬 Comments" : "Info"}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="flex border-b mb-2">
+          {["info", "comments"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex-1 text-xs py-1.5 font-medium transition ${
+                tab === t
+                  ? "border-b-2 border-slo-green text-slo-green"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              {t === "comments" ? "💬 Comments" : "Info"}
+            </button>
+          ))}
         </div>
       )}
 
       {tab === "leaderboard" ? (
         <Leaderboard landmarkId={landmark.id} />
+      ) : tab === "comments" ? (
+        <CommentsSection landmarkId={landmark.id} />
       ) : (
         <>
           {/* Photo gallery */}
@@ -206,10 +226,33 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
             </div>
           )}
 
-          {/* Footer */}
+          {/* Footer — likes + meta */}
           <div className="flex items-center justify-between text-xs text-gray-400 border-t pt-2">
             <span>{landmark.author ? `by ${landmark.author.username}` : "Official"}</span>
-            <span>{new Date(landmark.created_at).toLocaleDateString()}</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleLike(true)}
+                disabled={!user}
+                className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition ${
+                  likeSummary.user_vote === true
+                    ? "bg-green-100 text-green-700 font-semibold"
+                    : "text-gray-400 hover:text-green-600 hover:bg-green-50"
+                } disabled:opacity-40`}
+              >
+                👍 {likeSummary.likes}
+              </button>
+              <button
+                onClick={() => handleLike(false)}
+                disabled={!user}
+                className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded transition ${
+                  likeSummary.user_vote === false
+                    ? "bg-red-100 text-red-700 font-semibold"
+                    : "text-gray-400 hover:text-red-500 hover:bg-red-50"
+                } disabled:opacity-40`}
+              >
+                👎 {likeSummary.dislikes}
+              </button>
+            </div>
           </div>
 
           {/* Actions */}

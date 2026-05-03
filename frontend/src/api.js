@@ -61,3 +61,11 @@ export const photoUrl = (filename) => {
 };
 
 export default api;
+
+// --- Social (likes & comments) ---
+export const getLandmarkLikes = (landmarkId) => api.get(`/landmarks/${landmarkId}/like`);
+export const likeLandmark = (landmarkId, isLike) => api.post(`/landmarks/${landmarkId}/like`, { is_like: isLike });
+export const getComments = (landmarkId) => api.get(`/landmarks/${landmarkId}/comments`);
+export const createComment = (landmarkId, body) => api.post(`/landmarks/${landmarkId}/comments`, { body });
+export const deleteComment = (commentId) => api.delete(`/comments/${commentId}`);
+export const likeComment = (commentId, isLike) => api.post(`/comments/${commentId}/like`, { is_like: isLike });

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine
 from app import models
-from app.routers import auth, landmarks, photos, hikes
+from app.routers import auth, landmarks, photos, hikes, social
 
 # Create tables on startup
 models.Base.metadata.create_all(bind=engine)
@@ -26,6 +26,7 @@ app.include_router(auth.router)
 app.include_router(landmarks.router)
 app.include_router(photos.router)
 app.include_router(hikes.router)
+app.include_router(social.router)
 
 
 @app.get("/")

@@ -92,3 +92,52 @@ class HikeLog(Base):
 
     user = relationship("User", back_populates="hike_logs")
     landmark = relationship("Landmark", back_populates="hike_logs")
+
+
+class LandmarkLike(Base):
+    """Like or dislike on a landmark."""
+    __tablename__ = "landmark_likes"
+    __table_args__ = (
+        UniqueConstraint("user_id", "landmark_id", name="uq_landmark_like"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    landmark_id = Column(Integer, ForeignKey("landmarks.id"), nullable=False)
+    is_like = Column(Boolean, nullable=False)  # True = like, False = dislike
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User")
+    landmark = relationship("Landmark")
+
+
+class Comment(Base):
+    """Comment on a landmark."""
+    __tablename__ = "comments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    landmark_id = Column(Integer, ForeignKey("landmarks.id"), nullable=False)
+    author_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    body = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    landmark = relationship("Landmark")
+    author = relationship("User")
+    likes = relationship("CommentLike", back_populates="comment", cascade="all, delete-orphan")
+
+
+class CommentLike(Base):
+    """Like or dislike on a comment."""
+    __tablename__ = "comment_likes"
+    __table_args__ = (
+        UniqueConstraint("user_id", "comment_id", name="uq_comment_like"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    comment_id = Column(Integer, ForeignKey("comments.id"), nullable=False)
+    is_like = Column(Boolean, nullable=False)  # True = like, False = dislike
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User")
+    comment = relationship("Comment", back_populates="likes")

@@ -134,3 +134,34 @@ class UserStats(BaseModel):
     trail_count: int
     total_miles: float
     medals: List[MedalEntry]
+
+
+# --- Likes ---
+
+class LikeAction(BaseModel):
+    is_like: bool  # True = like, False = dislike
+
+
+class LikeSummary(BaseModel):
+    likes: int
+    dislikes: int
+    user_vote: Optional[bool] = None  # True/False/None
+
+
+# --- Comments ---
+
+class CommentCreate(BaseModel):
+    body: str
+
+
+class CommentOut(BaseModel):
+    id: int
+    body: str
+    author: UserOut
+    created_at: datetime
+    likes: int = 0
+    dislikes: int = 0
+    user_vote: Optional[bool] = None
+
+    class Config:
+        from_attributes = True
