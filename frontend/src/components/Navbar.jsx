@@ -55,12 +55,12 @@ export default function Navbar({ onMessage, messageTarget }) {
           {/* AI Chat button — always visible */}
           <button
             onClick={() => setShowChat(c => !c)}
-            className={`px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-sm transition ${
               showChat ? "bg-white text-slo-green font-semibold" : "bg-white/20 hover:bg-white/30"
             }`}
             title="Trail Guide AI"
           >
-            🤖 <span className="hidden sm:inline">Trail Guide</span>
+            Trail Guide
           </button>
           {user ? (
             <>
@@ -70,7 +70,7 @@ export default function Navbar({ onMessage, messageTarget }) {
                 className="relative bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition"
                 title="Messages"
               >
-                ✉️
+                Messages
                 {unread > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {unread > 9 ? "9+" : unread}
@@ -84,7 +84,7 @@ export default function Navbar({ onMessage, messageTarget }) {
                 className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition"
                 title="Weekly Objectives"
               >
-                🎯
+                Objectives
               </button>
 
               {/* Stats */}
