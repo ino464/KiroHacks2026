@@ -52,25 +52,46 @@ async def chat(request: ChatRequest):
 
     try:
         genai.configure(api_key=settings.GEMINI_API_KEY)
+
+        # List available models to find the right one
+        available = [m.name for m in genai.list_models()
+                     if "generateContent" in m.supported_generation_methods]
+
+        # Pick best available model in order of preference
+        preferred = [
+            "models/gemini-2.0-flash",
+            "models/gemini-2.0-flash-lite",
+            "models/gemini-1.5-flash",
+            "models/gemini-1.5-flash-8b",
+            "models/gemini-1.0-pro",
+        ]
+        model_name = next((m for m in preferred if m in available), None)
+
+        if not model_name:
+            raise HTTPException(
+                status_code=503,
+                detail=f"No supported model found. Available: {available[:5]}"
+            )
+
         model = genai.GenerativeModel(
-            model_name="gemini-2.5-flash-preview-04-17",
+            model_name=model_name,
             system_instruction=SYSTEM_PROMPT,
         )
 
         # Build history for multi-turn conversation
         history = []
-        messages = request.messages[:-1]  # all but last
-        for msg in messages:
+        for msg in request.messages[:-1]:
             history.append({
                 "role": msg.role,
                 "parts": [msg.content],
             })
 
         chat_session = model.start_chat(history=history)
-        last_message = request.messages[-1].content
-        response = chat_session.send_message(last_message)
+        response = chat_session.send_message(request.messages[-1].content)
 
         return ChatResponse(reply=response.text)
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")
