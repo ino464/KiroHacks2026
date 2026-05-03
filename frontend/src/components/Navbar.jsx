@@ -47,8 +47,8 @@ export default function Navbar({ onMessage, messageTarget }) {
     <>
       <nav className="bg-slo-green text-white px-4 py-3 flex items-center justify-between shadow-md z-50 relative">
         <Link to="/" className="flex items-center gap-2 font-bold text-xl tracking-tight">
-          <img src="/logo.png" alt="SLO Explorer" className="w-8 h-8 rounded-full object-cover" />
-          <span>SLO Explorer</span>
+          <img src="/logo.png" alt="SLO Explorer" className="w-10 h-10 rounded-full object-cover" />
+          <span>SLO Your Soul</span>
         </Link>
 
         <div className="flex items-center gap-2">

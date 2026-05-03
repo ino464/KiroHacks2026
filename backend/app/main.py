@@ -9,7 +9,7 @@ from app.routers import auth, landmarks, photos, hikes, social, profiles, chat, 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="SLO Explorer API",
+    title="SLO Your Soul API",
     description="Discover and share cool spots around San Luis Obispo",
     version="1.0.0",
 )
