@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getLandmark, uploadPhoto, deletePhoto, deleteLandmark, photoUrl } from "../api";
 import { useAuth } from "../context/AuthContext";
+import Leaderboard from "./Leaderboard";
 
 const DIFFICULTY_BADGE = {
   easy: "bg-green-100 text-green-800",
@@ -25,6 +26,7 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
   const [landmark, setLandmark] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [photoIdx, setPhotoIdx] = useState(0);
+  const [tab, setTab] = useState("info"); // "info" | "leaderboard"
 
   useEffect(() => {
     getLandmark(landmarkId).then((res) => setLandmark(res.data));
@@ -89,86 +91,110 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
         </div>
       </div>
 
-      {/* Photo gallery */}
-      {photos.length > 0 ? (
-        <div className="mb-2 relative">
-          <img
-            src={photoUrl(currentPhoto.filename)}
-            alt={currentPhoto.original_filename}
-            className="w-full h-40 object-cover rounded-lg"
-          />
-          {photos.length > 1 && (
-            <div className="absolute bottom-1 left-0 right-0 flex justify-center gap-1">
-              {photos.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPhotoIdx(i)}
-                  className={`w-2 h-2 rounded-full transition ${i === photoIdx ? "bg-white" : "bg-white/50"}`}
-                />
-              ))}
-            </div>
-          )}
-          {photos.length > 1 && (
-            <>
-              <button
-                onClick={() => setPhotoIdx((photoIdx - 1 + photos.length) % photos.length)}
-                className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-black/60"
-              >
-                ‹
-              </button>
-              <button
-                onClick={() => setPhotoIdx((photoIdx + 1) % photos.length)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-black/60"
-              >
-                ›
-              </button>
-            </>
-          )}
-          {isOwner && (
-            <button
-              onClick={() => handleDeletePhoto(currentPhoto.id)}
-              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-              title="Delete photo"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="mb-2 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs">
-          No photos yet
+      {/* Tabs — only show leaderboard tab for official trails */}
+      {landmark.is_official && (
+        <div className="flex border-b mb-2">
+          <button
+            onClick={() => setTab("info")}
+            className={`flex-1 text-xs py-1.5 font-medium transition ${
+              tab === "info"
+                ? "border-b-2 border-slo-green text-slo-green"
+                : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            Info
+          </button>
+          <button
+            onClick={() => setTab("leaderboard")}
+            className={`flex-1 text-xs py-1.5 font-medium transition ${
+              tab === "leaderboard"
+                ? "border-b-2 border-slo-green text-slo-green"
+                : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            🏆 Leaderboard
+          </button>
         </div>
       )}
 
-      {/* Description */}
-      <p className="text-gray-700 text-xs leading-relaxed mb-2 max-h-24 overflow-y-auto">
-        {landmark.description}
-      </p>
-
-      {/* Footer */}
-      <div className="flex items-center justify-between text-xs text-gray-400 border-t pt-2">
-        <span>
-          {landmark.author ? `by ${landmark.author.username}` : "Official"}
-        </span>
-        <span>{new Date(landmark.created_at).toLocaleDateString()}</span>
-      </div>
-
-      {/* Actions */}
-      {user && (
-        <div className="mt-2 flex gap-2">
-          <label className={`flex-1 text-center cursor-pointer bg-slo-sky/10 text-slo-sky border border-slo-sky/30 rounded-lg py-1 text-xs font-medium hover:bg-slo-sky/20 transition ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
-            {uploading ? "Uploading..." : "📷 Add Photo"}
-            <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-          </label>
-          {isOwner && (
-            <button
-              onClick={handleDelete}
-              className="flex-1 bg-red-50 text-red-600 border border-red-200 rounded-lg py-1 text-xs font-medium hover:bg-red-100 transition"
-            >
-              🗑️ Delete
-            </button>
+      {tab === "leaderboard" ? (
+        <Leaderboard landmarkId={landmark.id} />
+      ) : (
+        <>
+          {/* Photo gallery */}
+          {photos.length > 0 ? (
+            <div className="mb-2 relative">
+              <img
+                src={photoUrl(currentPhoto.filename)}
+                alt={currentPhoto.original_filename}
+                className="w-full h-40 object-cover rounded-lg"
+              />
+              {photos.length > 1 && (
+                <div className="absolute bottom-1 left-0 right-0 flex justify-center gap-1">
+                  {photos.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPhotoIdx(i)}
+                      className={`w-2 h-2 rounded-full transition ${i === photoIdx ? "bg-white" : "bg-white/50"}`}
+                    />
+                  ))}
+                </div>
+              )}
+              {photos.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setPhotoIdx((photoIdx - 1 + photos.length) % photos.length)}
+                    className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-black/60"
+                  >‹</button>
+                  <button
+                    onClick={() => setPhotoIdx((photoIdx + 1) % photos.length)}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/40 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-black/60"
+                  >›</button>
+                </>
+              )}
+              {isOwner && (
+                <button
+                  onClick={() => handleDeletePhoto(currentPhoto.id)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                  title="Delete photo"
+                >✕</button>
+              )}
+            </div>
+          ) : (
+            <div className="mb-2 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs">
+              No photos yet
+            </div>
           )}
-        </div>
+
+          {/* Description */}
+          <p className="text-gray-700 text-xs leading-relaxed mb-2 max-h-24 overflow-y-auto">
+            {landmark.description}
+          </p>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between text-xs text-gray-400 border-t pt-2">
+            <span>{landmark.author ? `by ${landmark.author.username}` : "Official"}</span>
+            <span>{new Date(landmark.created_at).toLocaleDateString()}</span>
+          </div>
+
+          {/* Actions */}
+          {user && (
+            <div className="mt-2 flex gap-2">
+              <label className={`flex-1 text-center cursor-pointer bg-slo-sky/10 text-slo-sky border border-slo-sky/30 rounded-lg py-1 text-xs font-medium hover:bg-slo-sky/20 transition ${uploading ? "opacity-50 pointer-events-none" : ""}`}>
+                {uploading ? "Uploading..." : "📷 Add Photo"}
+                <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+              </label>
+              {isOwner && (
+                <button
+                  onClick={handleDelete}
+                  className="flex-1 bg-red-50 text-red-600 border border-red-200 rounded-lg py-1 text-xs font-medium hover:bg-red-100 transition"
+                >
+                  🗑️ Delete
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

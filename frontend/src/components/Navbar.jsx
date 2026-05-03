@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthModal from "./AuthModal";
+import StatsPanel from "./StatsPanel";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login");
+  const [showStats, setShowStats] = useState(false);
 
   const openLogin = () => { setAuthMode("login"); setShowAuth(true); };
   const openRegister = () => { setAuthMode("register"); setShowAuth(true); };
@@ -22,7 +24,14 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <span className="text-sm opacity-80">Hi, {user.username}</span>
+              <button
+                onClick={() => setShowStats(true)}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-1.5"
+                title="My Stats"
+              >
+                <span>📊</span>
+                <span className="hidden sm:inline">{user.username}</span>
+              </button>
               <button
                 onClick={logout}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition"
@@ -56,6 +65,8 @@ export default function Navbar() {
           onSwitchMode={(m) => setAuthMode(m)}
         />
       )}
+
+      {showStats && <StatsPanel onClose={() => setShowStats(false)} />}
     </>
   );
 }

@@ -18,6 +18,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "moderate",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 3.2,
     },
     {
         "title": "Cerro San Luis (Madonna Mountain)",
@@ -31,6 +32,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 2.8,
     },
     {
         "title": "Islay Hill Open Space",
@@ -44,6 +46,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "moderate",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 1.4,
     },
     {
         "title": "Poly Canyon Design Village Trail",
@@ -57,6 +60,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 3.6,
     },
     {
         "title": "Montana de Oro Bluff Trail",
@@ -70,6 +74,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 4.0,
     },
     {
         "title": "Valencia Peak - Montana de Oro",
@@ -83,6 +88,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "moderate",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 4.6,
     },
     {
         "title": "Spooner's Cove - Montana de Oro",
@@ -96,6 +102,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "swimming_hole",
         "is_official": True,
+        "trail_length_miles": 0.5,
     },
     {
         "title": "Morro Rock",
@@ -109,6 +116,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "viewpoint",
         "is_official": True,
+        "trail_length_miles": 1.0,
     },
     {
         "title": "Morro Bay State Park Heron Rookery",
@@ -122,6 +130,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "wildlife",
         "is_official": True,
+        "trail_length_miles": 0.8,
     },
     {
         "title": "Cerro Alto Trail",
@@ -135,6 +144,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "hard",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 5.8,
     },
     {
         "title": "Pismo Beach Monarch Butterfly Grove",
@@ -148,6 +158,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "wildlife",
         "is_official": True,
+        "trail_length_miles": 0.4,
     },
     {
         "title": "Avila Beach Harford Pier",
@@ -161,6 +172,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "viewpoint",
         "is_official": True,
+        "trail_length_miles": 0.6,
     },
     {
         "title": "Prefumo Canyon Road Viewpoint",
@@ -174,6 +186,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "viewpoint",
         "is_official": True,
+        "trail_length_miles": 1.2,
     },
     {
         "title": "Lopez Lake Recreation Area",
@@ -187,6 +200,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "easy",
         "category": "camping",
         "is_official": True,
+        "trail_length_miles": 2.2,
     },
     {
         "title": "Chumash Trail - Santa Margarita Lake",
@@ -200,6 +214,7 @@ OFFICIAL_LANDMARKS = [
         "difficulty": "moderate",
         "category": "hiking_trail",
         "is_official": True,
+        "trail_length_miles": 3.8,
     },
 ]
 
@@ -209,7 +224,16 @@ def seed():
     try:
         existing = db.query(models.Landmark).filter(models.Landmark.is_official == True).count()
         if existing > 0:
-            print(f"Already have {existing} official landmarks. Skipping seed.")
+            # Update trail lengths if missing
+            for data in OFFICIAL_LANDMARKS:
+                lm = db.query(models.Landmark).filter(
+                    models.Landmark.title == data["title"],
+                    models.Landmark.is_official == True,
+                ).first()
+                if lm and lm.trail_length_miles is None:
+                    lm.trail_length_miles = data.get("trail_length_miles")
+            db.commit()
+            print(f"Already have {existing} official landmarks. Updated trail lengths.")
             return
 
         for data in OFFICIAL_LANDMARKS:

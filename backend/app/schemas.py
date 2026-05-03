@@ -91,3 +91,42 @@ class LandmarkSummary(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# --- Hike Logs ---
+
+class HikeLogSet(BaseModel):
+    """Set (or update) how many times the current user has hiked a trail."""
+    hike_count: int
+
+
+class HikeLogOut(BaseModel):
+    id: int
+    user_id: int
+    landmark_id: int
+    hike_count: int
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LeaderboardEntry(BaseModel):
+    rank: int
+    username: str
+    hike_count: int
+
+
+class MedalEntry(BaseModel):
+    trail_title: str
+    rank: int
+    medal: str  # "🥇", "🥈", "🥉"
+
+
+class UserStats(BaseModel):
+    username: str
+    total_hikes: int
+    post_count: int
+    trail_count: int
+    total_miles: float
+    medals: List[MedalEntry]

@@ -1,6 +1,6 @@
 from sqlalchemy import (
     Column, Integer, String, Float, Text, DateTime, ForeignKey,
-    Boolean, Enum as SAEnum
+    Boolean, Enum as SAEnum, UniqueConstraint
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -37,6 +37,7 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     landmarks = relationship("Landmark", back_populates="author")
+    hike_logs = relationship("HikeLog", back_populates="user")
 
 
 class Landmark(Base):
@@ -49,13 +50,15 @@ class Landmark(Base):
     longitude = Column(Float, nullable=False)
     difficulty = Column(SAEnum(DifficultyLevel), nullable=False, default=DifficultyLevel.easy)
     category = Column(SAEnum(LandmarkCategory), nullable=False, default=LandmarkCategory.other)
-    is_official = Column(Boolean, default=False)  # True for pre-loaded known trails
+    is_official = Column(Boolean, default=False)
+    trail_length_miles = Column(Float, nullable=True)  # round-trip miles for official trails
     author_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     author = relationship("User", back_populates="landmarks")
     photos = relationship("Photo", back_populates="landmark", cascade="all, delete-orphan")
+    hike_logs = relationship("HikeLog", back_populates="landmark")
 
 
 class Photo(Base):
@@ -68,3 +71,20 @@ class Photo(Base):
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
 
     landmark = relationship("Landmark", back_populates="photos")
+
+
+class HikeLog(Base):
+    """Tracks how many times a user has hiked a specific trail."""
+    __tablename__ = "hike_logs"
+    __table_args__ = (
+        UniqueConstraint("user_id", "landmark_id", name="uq_user_landmark"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    landmark_id = Column(Integer, ForeignKey("landmarks.id"), nullable=False)
+    hike_count = Column(Integer, nullable=False, default=1)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", back_populates="hike_logs")
+    landmark = relationship("Landmark", back_populates="hike_logs")

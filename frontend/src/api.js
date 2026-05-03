@@ -45,7 +45,14 @@ export const uploadPhoto = (landmarkId, file) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
-export const deletePhoto = (photoId) => api.delete(`/photos/${photoId}`);
+// --- Hikes & Leaderboard ---
+export const logHike = (landmarkId, hikeCount) =>
+  api.post(`/landmarks/${landmarkId}/hikes`, { hike_count: hikeCount });
+export const getLeaderboard = (landmarkId) =>
+  api.get(`/landmarks/${landmarkId}/leaderboard`);
+export const getMyHikeLog = (landmarkId) =>
+  api.get(`/landmarks/${landmarkId}/my-hikes`);
+export const getMyStats = () => api.get("/users/me/stats");
 
 export const photoUrl = (filename) => {
   const base = import.meta.env.VITE_API_URL || "";
