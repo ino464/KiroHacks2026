@@ -205,7 +205,6 @@ OFFICIAL_LANDMARKS = [
 
 
 def seed():
-    models.Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         existing = db.query(models.Landmark).filter(models.Landmark.is_official == True).count()
