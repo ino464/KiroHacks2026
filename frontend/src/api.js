@@ -81,3 +81,6 @@ export const getUnreadCount = () => api.get("/messages/unread/count");
 
 // --- AI Chat ---
 export const sendChatMessage = (messages) => api.post("/chat", { messages });
+
+// --- Weekly Objectives ---
+export const getObjectives = () => api.get("/objectives");

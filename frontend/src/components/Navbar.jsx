@@ -5,6 +5,7 @@ import AuthModal from "./AuthModal";
 import StatsPanel from "./StatsPanel";
 import MessagesPanel from "./MessagesPanel";
 import ChatPanel from "./ChatPanel";
+import ObjectivesPanel from "./ObjectivesPanel";
 import { getUnreadCount } from "../api";
 
 export default function Navbar({ onMessage, messageTarget }) {
@@ -14,6 +15,7 @@ export default function Navbar({ onMessage, messageTarget }) {
   const [showStats, setShowStats] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showObjectives, setShowObjectives] = useState(false);
   const [msgTarget, setMsgTarget] = useState(null);
   const [unread, setUnread] = useState(0);
 
@@ -76,6 +78,15 @@ export default function Navbar({ onMessage, messageTarget }) {
                 )}
               </button>
 
+              {/* Weekly Objectives */}
+              <button
+                onClick={() => setShowObjectives(true)}
+                className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition"
+                title="Weekly Objectives"
+              >
+                🎯
+              </button>
+
               {/* Stats */}
               <button
                 onClick={() => setShowStats(true)}
@@ -130,6 +141,7 @@ export default function Navbar({ onMessage, messageTarget }) {
       )}
 
       {showChat && <ChatPanel onClose={() => setShowChat(false)} />}
+      {showObjectives && <ObjectivesPanel onClose={() => setShowObjectives(false)} />}
     </>
   );
 }
