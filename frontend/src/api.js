@@ -1,7 +1,12 @@
 import axios from "axios";
 
+// In production (Vercel) use the Railway URL, in dev use Vite's proxy
+const BASE_URL = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : "/api";
+
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: BASE_URL,
 });
 
 // Attach JWT token to every request if present
@@ -42,6 +47,9 @@ export const uploadPhoto = (landmarkId, file) => {
 };
 export const deletePhoto = (photoId) => api.delete(`/photos/${photoId}`);
 
-export const photoUrl = (filename) => `/api/uploads/${filename}`;
+export const photoUrl = (filename) => {
+  const base = import.meta.env.VITE_API_URL || "";
+  return `${base}/api/uploads/${filename}`;
+};
 
 export default api;
