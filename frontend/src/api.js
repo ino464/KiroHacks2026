@@ -42,6 +42,6 @@ export const uploadPhoto = (landmarkId, file) => {
 };
 export const deletePhoto = (photoId) => api.delete(`/photos/${photoId}`);
 
-export const photoUrl = (filename) => `/uploads/${filename}`;
+export const photoUrl = (filename) => `/api/uploads/${filename}`;
 
 export default api;

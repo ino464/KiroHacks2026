@@ -14,9 +14,17 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# Allow requests from the frontend (localhost for dev, Vercel URL for prod)
+allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+]
+if settings.FRONTEND_URL:
+    allowed_origins.append(settings.FRONTEND_URL)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:3000", "http://localhost:5173"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

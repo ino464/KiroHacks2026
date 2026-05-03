@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import { getLandmarks } from "../api";
 import LandmarkPopup from "./LandmarkPopup";
@@ -32,6 +32,18 @@ const CATEGORY_ICONS = {
   other: "📍",
 };
 
+// SLO center + ~50 mile bounds
+const SLO_CENTER = [35.2828, -120.6596];
+const INITIAL_ZOOM = 11;
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 17;
+
+// ~50 mile radius around SLO
+const SLO_BOUNDS = L.latLngBounds(
+  L.latLng(34.56, -121.55), // SW corner
+  L.latLng(35.98, -119.77)  // NE corner
+);
+
 function makeIcon(landmark) {
   const color = DIFFICULTY_COLORS[landmark.difficulty] || "#6b7280";
   const emoji = CATEGORY_ICONS[landmark.category] || "📍";
@@ -57,27 +69,19 @@ function makeIcon(landmark) {
   return L.divIcon({ html, className: "custom-marker-icon", iconSize: [36, 36], iconAnchor: [18, 18] });
 }
 
-// Component to handle map clicks for placing new landmarks
 function MapClickHandler({ onMapClick, placing }) {
   useMapEvents({
     click(e) {
-      if (placing) {
-        onMapClick(e.latlng);
-      }
+      if (placing) onMapClick(e.latlng);
     },
   });
   return null;
 }
 
-// SLO center coordinates
-const SLO_CENTER = [35.2828, -120.6596];
-const INITIAL_ZOOM = 12;
-
 export default function MapView() {
   const { user } = useAuth();
   const [landmarks, setLandmarks] = useState([]);
   const [filters, setFilters] = useState({ category: "", difficulty: "", official_only: false });
-  const [selectedId, setSelectedId] = useState(null);
   const [placing, setPlacing] = useState(false);
   const [newLatLng, setNewLatLng] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -110,11 +114,11 @@ export default function MapView() {
   return (
     <div className="flex flex-col h-full">
       {/* Filter bar */}
-      <div className="bg-white border-b px-4 py-2 flex flex-wrap gap-3 items-center z-10">
+      <div className="bg-white border-b px-4 py-2 flex flex-wrap gap-3 items-center z-10 shadow-sm">
         <select
           value={filters.category}
           onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-          className="border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slo-green"
+          className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slo-green bg-gray-50"
         >
           <option value="">All categories</option>
           <option value="hiking_trail">🥾 Hiking Trail</option>
@@ -130,7 +134,7 @@ export default function MapView() {
         <select
           value={filters.difficulty}
           onChange={(e) => setFilters({ ...filters, difficulty: e.target.value })}
-          className="border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slo-green"
+          className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-slo-green bg-gray-50"
         >
           <option value="">All difficulties</option>
           <option value="easy">🟢 Easy</option>
@@ -139,17 +143,19 @@ export default function MapView() {
           <option value="expert">🟣 Expert</option>
         </select>
 
-        <label className="flex items-center gap-1.5 text-sm cursor-pointer">
+        <label className="flex items-center gap-1.5 text-sm cursor-pointer select-none">
           <input
             type="checkbox"
             checked={filters.official_only}
             onChange={(e) => setFilters({ ...filters, official_only: e.target.checked })}
-            className="accent-slo-green"
+            className="accent-slo-green w-4 h-4"
           />
-          Official trails only
+          <span className="text-gray-600">Official only</span>
         </label>
 
-        <span className="text-sm text-gray-500 ml-auto">{landmarks.length} spots</span>
+        <span className="text-sm text-gray-400 ml-auto">
+          {landmarks.length} spot{landmarks.length !== 1 ? "s" : ""}
+        </span>
 
         {user && (
           <button
@@ -166,8 +172,8 @@ export default function MapView() {
       </div>
 
       {placing && (
-        <div className="bg-slo-sky/10 border-b border-slo-sky text-slo-sky text-sm px-4 py-2 text-center font-medium">
-          Click anywhere on the map to place your new landmark
+        <div className="bg-blue-50 border-b border-blue-200 text-blue-700 text-sm px-4 py-2 text-center font-medium">
+          📍 Click anywhere on the map to place your new spot
         </div>
       )}
 
@@ -176,11 +182,15 @@ export default function MapView() {
         <MapContainer
           center={SLO_CENTER}
           zoom={INITIAL_ZOOM}
+          minZoom={MIN_ZOOM}
+          maxZoom={MAX_ZOOM}
+          maxBounds={SLO_BOUNDS}
+          maxBoundsViscosity={0.85}
           className="w-full h-full"
-          style={{ cursor: placing ? "crosshair" : "grab" }}
+          style={{ cursor: placing ? "crosshair" : undefined }}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
@@ -191,29 +201,28 @@ export default function MapView() {
               key={lm.id}
               position={[lm.latitude, lm.longitude]}
               icon={makeIcon(lm)}
-              eventHandlers={{ click: () => setSelectedId(lm.id) }}
             >
-              <Popup maxWidth={320} minWidth={280}>
-                <LandmarkPopup
-                  landmarkId={lm.id}
-                  onDeleted={fetchLandmarks}
-                />
+              <Popup maxWidth={320} minWidth={280} className="rounded-xl">
+                <LandmarkPopup landmarkId={lm.id} onDeleted={fetchLandmarks} />
               </Popup>
             </Marker>
           ))}
         </MapContainer>
-      </div>
 
-      {/* Legend */}
-      <div className="bg-white border-t px-4 py-2 flex flex-wrap gap-4 text-xs text-gray-600">
-        <span className="font-semibold">Difficulty:</span>
-        {Object.entries(DIFFICULTY_COLORS).map(([d, c]) => (
-          <span key={d} className="flex items-center gap-1">
-            <span style={{ background: c }} className="w-3 h-3 rounded-full inline-block" />
-            {d.charAt(0).toUpperCase() + d.slice(1)}
-          </span>
-        ))}
-        <span className="ml-4 font-semibold">Blue ring = Official trail</span>
+        {/* Legend overlay */}
+        <div className="absolute bottom-6 left-3 z-[999] bg-white/90 backdrop-blur-sm rounded-xl shadow-md px-3 py-2 text-xs text-gray-600 flex flex-col gap-1.5">
+          <span className="font-semibold text-gray-700">Difficulty</span>
+          {Object.entries(DIFFICULTY_COLORS).map(([d, c]) => (
+            <span key={d} className="flex items-center gap-1.5">
+              <span style={{ background: c }} className="w-2.5 h-2.5 rounded-full inline-block shrink-0" />
+              {d.charAt(0).toUpperCase() + d.slice(1)}
+            </span>
+          ))}
+          <div className="border-t border-gray-200 mt-0.5 pt-1.5 flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full border-2 border-blue-600 inline-block shrink-0" />
+            Official trail
+          </div>
+        </div>
       </div>
 
       {showCreateModal && newLatLng && (
