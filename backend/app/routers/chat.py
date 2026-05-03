@@ -95,3 +95,18 @@ async def chat(request: ChatRequest):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"AI error: {str(e)}")
+
+
+@router.get("/models")
+def list_available_models():
+    """Debug endpoint to see what models are available for this API key."""
+    try:
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        models = [
+            {"name": m.name, "methods": m.supported_generation_methods}
+            for m in genai.list_models()
+            if "generateContent" in m.supported_generation_methods
+        ]
+        return {"models": models}
+    except Exception as e:
+        return {"error": str(e)}
