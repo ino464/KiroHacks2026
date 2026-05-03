@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { getLeaderboard, getMyHikeLog, logHike } from "../api";
 import { useAuth } from "../context/AuthContext";
+import UserLink from "./UserLink";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
-export default function Leaderboard({ landmarkId }) {
+export default function Leaderboard({ landmarkId, onMessage }) {
   const { user } = useAuth();
   const [entries, setEntries] = useState([]);
   const [myCount, setMyCount] = useState(0);
@@ -58,7 +59,7 @@ export default function Leaderboard({ landmarkId }) {
             >
               <span className="flex items-center gap-1.5">
                 <span>{MEDALS[e.rank - 1] || `#${e.rank}`}</span>
-                <span className="text-gray-700">{e.username}</span>
+                <UserLink username={e.username} onMessage={onMessage} className="text-xs text-gray-700" />
               </span>
               <span className="text-gray-500">{e.hike_count}x</span>
             </div>

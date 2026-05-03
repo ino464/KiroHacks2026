@@ -165,3 +165,47 @@ class CommentOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# --- Public Profile ---
+
+class PublicProfile(BaseModel):
+    id: int
+    username: str
+    joined: datetime
+    total_hikes: int
+    total_miles: float
+    post_count: int
+    trail_count: int
+    medals: List[MedalEntry]
+
+    class Config:
+        from_attributes = True
+
+
+# --- Messages ---
+
+class MessageCreate(BaseModel):
+    body: str
+
+
+class MessageOut(BaseModel):
+    id: int
+    sender_id: int
+    sender_username: str
+    recipient_id: int
+    recipient_username: str
+    body: str
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ConversationSummary(BaseModel):
+    other_user_id: int
+    other_username: str
+    last_message: str
+    last_message_at: datetime
+    unread_count: int

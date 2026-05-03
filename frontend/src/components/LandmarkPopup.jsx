@@ -3,6 +3,7 @@ import { getLandmark, uploadPhoto, deletePhoto, deleteLandmark, photoUrl, getLan
 import { useAuth } from "../context/AuthContext";
 import Leaderboard from "./Leaderboard";
 import CommentsSection from "./CommentsSection";
+import UserLink from "./UserLink";
 
 const DIFFICULTY_BADGE = {
   easy: "bg-green-100 text-green-800",
@@ -22,7 +23,7 @@ const CATEGORY_LABELS = {
   other: "📍 Other",
 };
 
-export default function LandmarkPopup({ landmarkId, onDeleted }) {
+export default function LandmarkPopup({ landmarkId, onDeleted, onMessage }) {
   const { user } = useAuth();
   const [landmark, setLandmark] = useState(null);
   const [uploading, setUploading] = useState(false);
@@ -143,9 +144,9 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
       )}
 
       {tab === "leaderboard" ? (
-        <Leaderboard landmarkId={landmark.id} />
+        <Leaderboard landmarkId={landmark.id} onMessage={onMessage} />
       ) : tab === "comments" ? (
-        <CommentsSection landmarkId={landmark.id} />
+        <CommentsSection landmarkId={landmark.id} onMessage={onMessage} />
       ) : (
         <>
           {/* Photo gallery */}
@@ -228,7 +229,11 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
 
           {/* Footer — likes + meta */}
           <div className="flex items-center justify-between text-xs text-gray-400 border-t pt-2">
-            <span>{landmark.author ? `by ${landmark.author.username}` : "Official"}</span>
+            <span>
+              {landmark.author
+                ? <UserLink username={landmark.author.username} onMessage={onMessage} className="text-xs text-gray-400" />
+                : "Official"}
+            </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handleLike(true)}

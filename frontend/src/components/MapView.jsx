@@ -78,7 +78,7 @@ function MapClickHandler({ onMapClick, placing }) {
   return null;
 }
 
-export default function MapView() {
+export default function MapView({ onMessage }) {
   const { user } = useAuth();
   const [landmarks, setLandmarks] = useState([]);
   const [filters, setFilters] = useState({ category: "", difficulty: "", official_only: false });
@@ -203,7 +203,7 @@ export default function MapView() {
               icon={makeIcon(lm)}
             >
               <Popup maxWidth={320} minWidth={280} className="rounded-xl">
-                <LandmarkPopup landmarkId={lm.id} onDeleted={fetchLandmarks} />
+                <LandmarkPopup landmarkId={lm.id} onDeleted={fetchLandmarks} onMessage={onMessage} />
               </Popup>
             </Marker>
           ))}

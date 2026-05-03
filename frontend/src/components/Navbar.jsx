@@ -1,17 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import AuthModal from "./AuthModal";
 import StatsPanel from "./StatsPanel";
+import MessagesPanel from "./MessagesPanel";
+import { getUnreadCount } from "../api";
 
-export default function Navbar() {
+export default function Navbar({ onMessage, messageTarget }) {
   const { user, logout } = useAuth();
   const [showAuth, setShowAuth] = useState(false);
   const [authMode, setAuthMode] = useState("login");
   const [showStats, setShowStats] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
+  const [msgTarget, setMsgTarget] = useState(null);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const load = () => getUnreadCount().then(r => setUnread(r.data.unread)).catch(() => {});
+    load();
+    const interval = setInterval(load, 30000); // poll every 30s
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // Allow parent to trigger opening messages
+  useEffect(() => {
+    if (messageTarget) {
+      setMsgTarget(messageTarget);
+      setShowMessages(true);
+    }
+  }, [messageTarget]);
 
   const openLogin = () => { setAuthMode("login"); setShowAuth(true); };
   const openRegister = () => { setAuthMode("register"); setShowAuth(true); };
+
+  const handleOpenMessage = (username) => {
+    setMsgTarget(username);
+    setShowMessages(true);
+  };
 
   return (
     <>
@@ -21,9 +47,24 @@ export default function Navbar() {
           <span>SLO Explorer</span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {user ? (
             <>
+              {/* Messages */}
+              <button
+                onClick={() => { setMsgTarget(null); setShowMessages(true); }}
+                className="relative bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition"
+                title="Messages"
+              >
+                ✉️
+                {unread > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </button>
+
+              {/* Stats */}
               <button
                 onClick={() => setShowStats(true)}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-1.5"
@@ -32,6 +73,7 @@ export default function Navbar() {
                 <span>📊</span>
                 <span className="hidden sm:inline">{user.username}</span>
               </button>
+
               <button
                 onClick={logout}
                 className="bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-lg text-sm transition"
@@ -67,6 +109,13 @@ export default function Navbar() {
       )}
 
       {showStats && <StatsPanel onClose={() => setShowStats(false)} />}
+
+      {showMessages && (
+        <MessagesPanel
+          initialUsername={msgTarget}
+          onClose={() => { setShowMessages(false); setMsgTarget(null); setUnread(0); }}
+        />
+      )}
     </>
   );
 }

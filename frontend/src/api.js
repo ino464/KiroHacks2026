@@ -69,3 +69,12 @@ export const getComments = (landmarkId) => api.get(`/landmarks/${landmarkId}/com
 export const createComment = (landmarkId, body) => api.post(`/landmarks/${landmarkId}/comments`, { body });
 export const deleteComment = (commentId) => api.delete(`/comments/${commentId}`);
 export const likeComment = (commentId, isLike) => api.post(`/comments/${commentId}/like`, { is_like: isLike });
+
+// --- Profiles ---
+export const getProfile = (username) => api.get(`/users/${username}/profile`);
+
+// --- Messages ---
+export const getConversations = () => api.get("/messages/conversations");
+export const getConversation = (username) => api.get(`/messages/${username}`);
+export const sendMessage = (username, body) => api.post(`/messages/${username}`, { body });
+export const getUnreadCount = () => api.get("/messages/unread/count");

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getComments, createComment, deleteComment, likeComment } from "../api";
 import { useAuth } from "../context/AuthContext";
+import UserLink from "./UserLink";
 
 function LikeBar({ likes, dislikes, userVote, onLike, onDislike, disabled }) {
   return (
@@ -31,7 +32,7 @@ function LikeBar({ likes, dislikes, userVote, onLike, onDislike, disabled }) {
   );
 }
 
-export default function CommentsSection({ landmarkId }) {
+export default function CommentsSection({ landmarkId, onMessage }) {
   const { user } = useAuth();
   const [comments, setComments] = useState([]);
   const [body, setBody] = useState("");
@@ -81,7 +82,7 @@ export default function CommentsSection({ landmarkId }) {
           comments.map((c) => (
             <div key={c.id} className="bg-gray-50 rounded-lg px-2.5 py-2">
               <div className="flex items-start justify-between gap-1 mb-1">
-                <span className="text-xs font-semibold text-gray-700">{c.author.username}</span>
+                <UserLink username={c.author.username} onMessage={onMessage} className="text-xs text-gray-700" />
                 <span className="text-xs text-gray-400 shrink-0">
                   {new Date(c.created_at).toLocaleDateString()}
                 </span>
