@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import AuthModal from "./AuthModal";
 import StatsPanel from "./StatsPanel";
 import MessagesPanel from "./MessagesPanel";
+import ChatPanel from "./ChatPanel";
 import { getUnreadCount } from "../api";
 
 export default function Navbar({ onMessage, messageTarget }) {
@@ -12,6 +13,7 @@ export default function Navbar({ onMessage, messageTarget }) {
   const [authMode, setAuthMode] = useState("login");
   const [showStats, setShowStats] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const [msgTarget, setMsgTarget] = useState(null);
   const [unread, setUnread] = useState(0);
 
@@ -48,6 +50,16 @@ export default function Navbar({ onMessage, messageTarget }) {
         </Link>
 
         <div className="flex items-center gap-2">
+          {/* AI Chat button — always visible */}
+          <button
+            onClick={() => setShowChat(c => !c)}
+            className={`px-3 py-1.5 rounded-lg text-sm transition flex items-center gap-1.5 ${
+              showChat ? "bg-white text-slo-green font-semibold" : "bg-white/20 hover:bg-white/30"
+            }`}
+            title="Trail Guide AI"
+          >
+            🤖 <span className="hidden sm:inline">Trail Guide</span>
+          </button>
           {user ? (
             <>
               {/* Messages */}
@@ -116,6 +128,8 @@ export default function Navbar({ onMessage, messageTarget }) {
           onClose={() => { setShowMessages(false); setMsgTarget(null); setUnread(0); }}
         />
       )}
+
+      {showChat && <ChatPanel onClose={() => setShowChat(false)} />}
     </>
   );
 }

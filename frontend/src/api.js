@@ -78,3 +78,6 @@ export const getConversations = () => api.get("/messages/conversations");
 export const getConversation = (username) => api.get(`/messages/${username}`);
 export const sendMessage = (username, body) => api.post(`/messages/${username}`, { body });
 export const getUnreadCount = () => api.get("/messages/unread/count");
+
+// --- AI Chat ---
+export const sendChatMessage = (messages) => api.post("/chat", { messages });
