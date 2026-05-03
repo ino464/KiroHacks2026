@@ -47,6 +47,7 @@ async def upload_photo(
         landmark_id=landmark_id,
         filename=unique_name,
         original_filename=file.filename or unique_name,
+        uploaded_by_id=current_user.id,
     )
     db.add(photo)
     db.commit()
@@ -65,7 +66,10 @@ def delete_photo(
         raise HTTPException(status_code=404, detail="Photo not found")
 
     lm = photo.landmark
-    if lm.author_id != current_user.id:
+    # Allow: landmark owner OR the user who uploaded the photo
+    is_landmark_owner = lm.author_id == current_user.id
+    is_photo_uploader = photo.uploaded_by_id == current_user.id
+    if not is_landmark_owner and not is_photo_uploader:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     file_path = os.path.join(settings.UPLOAD_DIR, photo.filename)

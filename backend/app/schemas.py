@@ -37,6 +37,7 @@ class PhotoOut(BaseModel):
     id: int
     filename: str
     original_filename: str
+    uploaded_by_id: Optional[int] = None
     uploaded_at: datetime
 
     class Config:

@@ -38,6 +38,13 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
 
   const isOwner = user && landmark.author && user.id === landmark.author.id;
 
+  const canDeletePhoto = (photo) => {
+    if (!user) return false;
+    if (isOwner) return true; // landmark owner can delete any photo
+    if (photo.uploaded_by_id === user.id) return true; // uploader can delete their own
+    return false;
+  };
+
   const handlePhotoUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -152,7 +159,7 @@ export default function LandmarkPopup({ landmarkId, onDeleted }) {
                   >›</button>
                 </>
               )}
-              {isOwner && (
+              {canDeletePhoto(currentPhoto) && (
                 <button
                   onClick={() => handleDeletePhoto(currentPhoto.id)}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"

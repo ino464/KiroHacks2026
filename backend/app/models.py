@@ -68,11 +68,13 @@ class Photo(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     landmark_id = Column(Integer, ForeignKey("landmarks.id"), nullable=False)
+    uploaded_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     filename = Column(String(255), nullable=False)
     original_filename = Column(String(255), nullable=False)
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
 
     landmark = relationship("Landmark", back_populates="photos")
+    uploaded_by = relationship("User")
 
 
 class HikeLog(Base):
