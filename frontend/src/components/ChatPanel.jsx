@@ -62,7 +62,6 @@ export default function ChatPanel({ onClose }) {
           <span className="text-xl">🤖</span>
           <div>
             <div className="font-bold text-sm">SLO Trail Guide</div>
-            <div className="text-white/70 text-xs">Powered by Gemini AI</div>
           </div>
         </div>
         <button onClick={onClose} className="text-white/70 hover:text-white text-lg">✕</button>
