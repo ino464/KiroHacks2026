@@ -53,7 +53,7 @@ async def chat(request: ChatRequest):
     try:
         genai.configure(api_key=settings.GEMINI_API_KEY)
         model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash-lite",
+            model_name="gemini-2.0-flash",
             system_instruction=SYSTEM_PROMPT,
         )
 
